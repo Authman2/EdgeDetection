@@ -1,6 +1,7 @@
 package code;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -29,31 +30,48 @@ public class EdgeDetector {
 	
 	
 	/**
-	 * Detects the edges in a BufferedImage. Threshold is the amount of difference to check for in terms of pixel value.
+	 * Detects the edges in a BufferedImage. Threshold is the amount of difference to check for in terms of color value. Returns
+	 * a HashMap that represents the coordinate points of all of the edges on the map (or everything but the edges).
+	 * 
+	 * @param threshold -- The amount of difference to check for between pixels.
+	 * @return coordinates.
 	 */
-	public void detect(int threshold) {
+	public HashMap<Integer, Integer> detect(int threshold) {
 		JEImage copyImg = image.clone();
+		HashMap<Integer, Integer> coordinates = new HashMap<Integer, Integer>();
 		
 		for(int y = 1; y < image.getHeight() - 1; y++) {
 			
 			for(int x = 1; x < image.getWidth() - 1; x++) {
 				
+				//The different pixels to look at.
 				int current = image.getRGB(x, y);
 				int left = image.getRGB(x-1, y);
 				int bottom = image.getRGB(x, y+1);
+				int top = image.getRGB(x, y-1);
+				int right = image.getRGB(x+1, y);
 				
-				int newPix = copyImg.getRGB(x, y);
 				
-				if(Math.abs(current - left) <= threshold || Math.abs(current - bottom) <= threshold) {
-					newPix = 0;
-					copyImg.setRGB(x, y, newPix);
+				/* Comment out one of the two lines of code below. The first one shows everything EXCEPT for the edges dark,
+				 * and the second one makes ONLY the edges dark. */
+				if(Math.abs(current - left) <= threshold || Math.abs(current - bottom) <= threshold 
+				|| Math.abs(current - right) <= threshold || Math.abs(current - top) <= threshold) {
+					
+					//copyImg.setRGB(x, y, 0);
+					//coordinates.put(x, y);
+				
+				} else {
+					
+					copyImg.setRGB(x, y, 0);
+					coordinates.put(x, y);
+					
 				}
 			}
 		}
 		
-		//Make a JFrame to display image 
-		JFrame frame = new JFrame("Frame");
-		frame.setSize(300,300);
+		//Make a JFrame to display the image 
+		JFrame frame = new JFrame("Edge Detector");
+		frame.setSize(400,400);
 		frame.setLocationRelativeTo(null);
 		JPanel p = new JPanel();
 		JLabel l = new JLabel();
@@ -62,6 +80,8 @@ public class EdgeDetector {
 		frame.add(p);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		
+		return coordinates;
  	}
 	
 	

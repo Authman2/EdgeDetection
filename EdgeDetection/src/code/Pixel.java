@@ -2,7 +2,6 @@ package code;
 
 public class Pixel {
 
-	@SuppressWarnings("unused")
 	private int red, green, blue, average;
 	
 	
@@ -18,6 +17,6 @@ public class Pixel {
 	public int getRed() { return red; }
 	public int getGreen() { return green; }
 	public int getBlue() { return blue; }
-	public int getAverage() { return (red+green+blue)/3; }
+	public int getAverage() { return average; }
 	
 }

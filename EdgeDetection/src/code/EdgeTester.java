@@ -10,7 +10,7 @@ public class EdgeTester {
 		
 		EdgeDetector t = new EdgeDetector(s.getImage());
 		
-		t.detect(100);
+		t.detect(100000);
 	}
 
 }
