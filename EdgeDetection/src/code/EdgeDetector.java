@@ -1,5 +1,6 @@
 package code;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
@@ -37,6 +38,29 @@ public class EdgeDetector {
 		image = new JEImage(img);
 	}
 	
+	/** Blurs the image using a Gaussian blur. */
+	private BufferedImage blur(JEImage img) {
+		JEImage copy = img.clone();
+		
+		for(int i = 1; i < copy.getWidth() - 1; i++) {
+			for(int j = 1; j < copy.getHeight() - 1; j++) {
+				Color p1 = new Color(copy.getRGB(i-1, j));
+				Color p2 = new Color(copy.getRGB(i+1, j));
+				Color p3 = new Color(copy.getRGB(i, j-1));
+				Color p4 = new Color(copy.getRGB(i, j+1));
+				Color original = new Color(copy.getRGB(i, j));
+				
+				int avgRed = (p1.getRed() + p2.getRed() + p3.getRed() + p4.getRed()) / 4;
+                int avgGreen = (p1.getGreen() + p2.getGreen() + p3.getGreen() + p4.getGreen()) / 4;
+                int avgBlue = (p1.getBlue() + p2.getBlue() + p3.getBlue() + p4.getBlue()) / 4;
+                
+                original = new Color(avgRed, avgGreen, avgBlue);
+                copy.setRGB(i, j, original.getRGB());
+			}
+		}		
+		
+		return copy.getImage();
+	}
 	
 	/**
 	 * Detects the edges in a BufferedImage. Threshold is the amount of difference to check for in terms of color value. Returns
@@ -50,6 +74,9 @@ public class EdgeDetector {
 	public HashMap<Integer, Integer> detect(boolean displayImage, int threshold) {
 		JEImage copyImg = image.clone();
 		HashMap<Integer, Integer> coordinates = new HashMap<Integer, Integer>();
+		
+		//Blur the image to help remove noise.
+		copyImg.setImage(blur(copyImg));
 		
 		for(int y = 1; y < image.getHeight() - 1; y++) {
 			
@@ -108,6 +135,9 @@ public class EdgeDetector {
 	 */
 	public BufferedImage Detect(boolean displayImage, int threshold) {
 		JEImage copyImg = image.clone();
+		
+		//Blur the image to help remove noise.
+		copyImg.setImage(blur(copyImg));
 		
 		for(int y = 1; y < image.getHeight() - 1; y++) {
 			

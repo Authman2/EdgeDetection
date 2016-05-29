@@ -6,11 +6,11 @@ import sun.applet.Main;
 public class EdgeTester {
 
 	public static void main(String[] args) {
-		JEImage s = new JEImage(Main.class, "/images/clouds2.jpg");
+		JEImage s = new JEImage(Main.class, "/images/clouds.jpg");
 		
 		EdgeDetector t = new EdgeDetector(s.getImage());
 		
-		t.detect(100000);
+		t.detect(true, 100000);
 	}
 
 }
