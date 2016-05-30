@@ -2,7 +2,6 @@ package code;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -10,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import contents.JEImage;
+import helper.Tuple;
+import helper.TupleList;
 
 public class EdgeDetector {
 	
@@ -64,19 +65,22 @@ public class EdgeDetector {
 	
 	/**
 	 * Detects the edges in a BufferedImage. Threshold is the amount of difference to check for in terms of color value. Returns
-	 * a HashMap that represents the coordinate points of all of the edges on the image (or everything but the edges).
+	 * a list of Tuples that represents the coordinate points of all of the edges on the image (or everything but the edges).
 	 * 
 	 * @param displayImage -- Whether or not this method will create a JFrame to show the image once the edges have been detected.
 	 * This is just so the user can see where the edges were found.
 	 * @param threshold -- The amount of difference to check for between pixels.
-	 * @return coordinates.
+	 * @return coordinates -- A List of Tuples created to hold the x coordinate, the y coordinate, and a key for find each coordinate later on.
 	 */
-	public HashMap<Integer, Integer> detect(boolean displayImage, int threshold) {
+	public TupleList detect(boolean displayImage, int threshold) {
 		JEImage copyImg = image.clone();
-		HashMap<Integer, Integer> coordinates = new HashMap<Integer, Integer>();
+		TupleList coordinates = new TupleList();
 		
 		//Blur the image to help remove noise.
 		copyImg.setImage(blur(copyImg));
+		
+		//The key to set the coordinates to.
+		int key = 0;
 		
 		for(int y = 1; y < image.getHeight() - 1; y++) {
 			
@@ -96,16 +100,27 @@ public class EdgeDetector {
 				|| Math.abs(current - right) <= threshold || Math.abs(current - top) <= threshold) {
 					
 					//copyImg.setRGB(x, y, 0);
-					//coordinates.put(x, y);
+					//coordinates.add(new Tuple<Integer, Integer, Integer>(x,y,key));
+					//key++;
 				
 				} else {
 					
-					copyImg.setRGB(x, y, 0);
-					coordinates.put(x, y);
-					
+					copyImg.setRGB(x, y, Color.black.getRGB());
+					coordinates.add(new Tuple<Integer, Integer, Integer>(x,y,key));
+					key++;
 				}
 			}
 		}
+		
+		//An image consisting of only the edges
+		JEImage edges = new JEImage();
+		edges.setSize(copyImg.getWidth(), copyImg.getHeight());
+		
+		//Loop through and only set the color of points that are found to be edges.
+		for(Tuple<Integer, Integer, Integer> t : coordinates) {
+			edges.setRGB(t.getX(), t.getY(), Color.black.getRGB());
+		}
+		
 		
 		if(displayImage) {
 			//Make a JFrame to display the image 
@@ -114,7 +129,7 @@ public class EdgeDetector {
 			frame.setLocationRelativeTo(null);
 			JPanel p = new JPanel();
 			JLabel l = new JLabel();
-			l.setIcon(new ImageIcon(copyImg.getImage()));
+			l.setIcon(new ImageIcon(edges.getImage()));
 			p.add(l);
 			frame.add(p);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -135,9 +150,13 @@ public class EdgeDetector {
 	 */
 	public BufferedImage Detect(boolean displayImage, int threshold) {
 		JEImage copyImg = image.clone();
+		TupleList coordinates = new TupleList();
 		
 		//Blur the image to help remove noise.
 		copyImg.setImage(blur(copyImg));
+
+		//The key to set the coordinates to.
+		int key = 0;
 		
 		for(int y = 1; y < image.getHeight() - 1; y++) {
 			
@@ -157,13 +176,27 @@ public class EdgeDetector {
 				|| Math.abs(current - right) <= threshold || Math.abs(current - top) <= threshold) {
 					
 					//copyImg.setRGB(x, y, 0);
+					//coordinates.add(new Tuple<Integer, Integer, Integer>(x,y,key));
+					//key++;
 				
 				} else {
 					
 					copyImg.setRGB(x, y, 0);
+					coordinates.add(new Tuple<Integer, Integer, Integer>(x,y,key));
+					key++;
 					
 				}
 			}
+		}
+		
+		
+		//An image consisting of only the edges
+		JEImage edges = new JEImage();
+		edges.setSize(copyImg.getWidth(), copyImg.getHeight());
+		
+		//Loop through and only set the color of points that are found to be edges.
+		for(Tuple<Integer, Integer, Integer> t : coordinates) {
+			edges.setRGB(t.getX(), t.getY(), Color.black.getRGB());
 		}
 		
 		if(displayImage) {
@@ -173,14 +206,14 @@ public class EdgeDetector {
 			frame.setLocationRelativeTo(null);
 			JPanel p = new JPanel();
 			JLabel l = new JLabel();
-			l.setIcon(new ImageIcon(copyImg.getImage()));
+			l.setIcon(new ImageIcon(edges.getImage()));
 			p.add(l);
 			frame.add(p);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setVisible(true);
 		}
 		
-		return copyImg.getImage();
+		return edges.getImage();
  	}
 	
 

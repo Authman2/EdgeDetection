@@ -1,4 +1,4 @@
-package code;
+package helper;
 
 public class Pixel {
 
