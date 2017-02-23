@@ -14,11 +14,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/images/1.png</name>
-			<type>1</type>
-			<location>/Users/adeola.uthman/Desktop/photos/1.png</location>
-		</link>
-	</linkedResources>
 </projectDescription>

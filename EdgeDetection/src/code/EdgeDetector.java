@@ -2,15 +2,20 @@ package code;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import contents.JEImage;
-import helper.Tuple;
-import helper.TupleList;
+import je.collections.Tuple;
+import je.collections.TupleList;
+import je.other.pointconnector.DrawingPanel;
+import je.other.pointconnector.PointConnector;
+import je.other.pointconnector.PointConnector.ConnectionType;
+import je.visual.JEImage;
+
 
 public class EdgeDetector {
 	
@@ -18,13 +23,13 @@ public class EdgeDetector {
 	JEImage image;
 
 	
-	public EdgeDetector() {
-		
-	}
+	public EdgeDetector() {}
+	
 	
 	public EdgeDetector(JEImage jei) {
 		image = jei;
 	}
+	
 	
 	public EdgeDetector(BufferedImage img) {
 		image = new JEImage(img);
@@ -35,9 +40,11 @@ public class EdgeDetector {
 		image = jei;
 	}
 	
+	
 	public void setImage(BufferedImage img) {
 		image = new JEImage(img);
 	}
+	
 	
 	/** Blurs the image using a Gaussian blur. */
 	private BufferedImage blur(JEImage img) {
@@ -72,9 +79,10 @@ public class EdgeDetector {
 	 * @param threshold -- The amount of difference to check for between pixels.
 	 * @return coordinates -- A List of Tuples created to hold the x coordinate, the y coordinate, and a key for find each coordinate later on.
 	 */
-	public TupleList detect(boolean displayImage, int threshold) {
+	public ArrayList<Tuple> detect(boolean displayImage, int threshold) {
 		JEImage copyImg = image.clone();
-		TupleList coordinates = new TupleList();
+		ArrayList<Tuple> coordinates = new ArrayList<Tuple>();
+		PointConnector pointConnector = new PointConnector();
 		
 		//Blur the image to help remove noise.
 		copyImg.setImage(blur(copyImg));
@@ -106,7 +114,7 @@ public class EdgeDetector {
 				} else {
 					
 					copyImg.setRGB(x, y, Color.black.getRGB());
-					coordinates.add(new Tuple<Integer, Integer, Integer>(x,y,key));
+					coordinates.add(new Tuple(x, y, key));
 					key++;
 				}
 			}
@@ -117,21 +125,24 @@ public class EdgeDetector {
 		edges.setSize(copyImg.getWidth(), copyImg.getHeight());
 		
 		//Loop through and only set the color of points that are found to be edges.
-		for(Tuple<Integer, Integer, Integer> t : coordinates) {
-			edges.setRGB(t.getX(), t.getY(), Color.black.getRGB());
+		for(Tuple t : coordinates) {
+			edges.setRGB((Integer)t.atIndex(0), (Integer)t.atIndex(1), Color.black.getRGB());
+			pointConnector.addPoint((Integer)t.atIndex(0), (Integer)t.atIndex(1));
 		}
 		
+		// Connect the points
+		pointConnector.connectBy(ConnectionType.PROXIMITY, 10);
 		
 		if(displayImage) {
 			//Make a JFrame to display the image 
 			JFrame frame = new JFrame("Edge Detector");
 			frame.setSize(400,400);
 			frame.setLocationRelativeTo(null);
-			JPanel p = new JPanel();
+			JPanel panel = new DrawingPanel(pointConnector.getPoints(), false);
 			JLabel l = new JLabel();
-			l.setIcon(new ImageIcon(edges.getImage()));
-			p.add(l);
-			frame.add(p);
+			//l.setIcon(new ImageIcon(edges.getImage()));
+			panel.add(l);
+			frame.add(panel);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setVisible(true);
 		}
@@ -150,7 +161,7 @@ public class EdgeDetector {
 	 */
 	public BufferedImage Detect(boolean displayImage, int threshold) {
 		JEImage copyImg = image.clone();
-		TupleList coordinates = new TupleList();
+		TupleList<Integer> coordinates = new TupleList<Integer>();
 		
 		//Blur the image to help remove noise.
 		copyImg.setImage(blur(copyImg));
@@ -182,7 +193,7 @@ public class EdgeDetector {
 				} else {
 					
 					copyImg.setRGB(x, y, 0);
-					coordinates.add(new Tuple<Integer, Integer, Integer>(x,y,key));
+					coordinates.add(new Tuple(x, y, key));
 					key++;
 					
 				}
@@ -195,8 +206,8 @@ public class EdgeDetector {
 		edges.setSize(copyImg.getWidth(), copyImg.getHeight());
 		
 		//Loop through and only set the color of points that are found to be edges.
-		for(Tuple<Integer, Integer, Integer> t : coordinates) {
-			edges.setRGB(t.getX(), t.getY(), Color.black.getRGB());
+		for(Tuple t : coordinates) {
+			edges.setRGB((Integer)t.atIndex(0), (Integer)t.atIndex(1), Color.black.getRGB());
 		}
 		
 		if(displayImage) {
